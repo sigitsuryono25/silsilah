@@ -1,480 +1,502 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
 *,*::before,*::after {
-  box-sizing: border-box
+    box-sizing: border-box
 }
 
 html {
-  font-family: sans-serif;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: rgba(0,0,0,0)
+    font-family: sans-serif;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
 }
 body {
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
-  line-height: 18px;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    line-height: 18px;
 }
 .outer-wrapper h3,
 .outer-wrapper p {
-  margin: 0;
+    margin: 0;
 }
 img {
-  max-width: 100%;
+    max-width: 100%;
 }
 
 .outer-wrapper {
-  overflow: auto;
+    overflow: auto;
 }
 .row-wrapper {
-  padding: 20px 0;
-  display: table;
-  text-align: center;
-  margin: 0 auto;
-  width: max-content;
+    padding: 20px 0;
+    display: table;
+    text-align: center;
+    margin: 0 auto;
+    width: max-content;
 }
 .main-wrapper {
-  position: relative;
-  display: table-cell;
+    position: relative;
+    display: table-cell;
 }
 .main-wrapper.main-head {
-  margin-left: -25px;
-  display: inline-block;
+    margin-left: -25px;
+    display: inline-block;
 }
 .main-wrapper.child-wrapp {
-  margin-right: 80px;
+    margin-right: 80px;
 }
 .main-wrapper.child-wrapp:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 .main-wrapper.child-wrapp::before {
-  content: "";
-  width: 100%;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  transform: translateX(-50%);
+    content: "";
+    width: 100%;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    transform: translateX(-50%);
 }
 
 
 .main-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
 }
 .main-list li {
-  display: inline-block;
-  position: relative;
-  background-color: #f5f5f5;
-  padding: 10px;
-  vertical-align: top;
-  border-radius: 5px;
-  text-align: left;
-  min-height: 103px;
-  margin-right: 40px;
-  min-width: 150px;
+    display: inline-block;
+    position: relative;
+    background-color: #f5f5f5;
+    padding: 10px;
+    vertical-align: top;
+    border-radius: 5px;
+    text-align: left;
+    min-height: 103px;
+    margin-right: 40px;
+    min-width: 150px;
 }
 .main-list li.male {
-  background-color: #BAD8EC;
+    background-color: #BAD8EC;
 }
 .main-list li.female {
-  background-color: #f8c6e2;
+    background-color: #f8c6e2;
 }
 .main-list li:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 .main-list li.child {
-  min-width: inherit;
-  min-height: 58px;
+    min-width: inherit;
+    min-height: 58px;
 }
 .main-list li::after {
-  content: "";
-  display: block;
-  width:45px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: 50%;
-  right: -45px;
-  margin-top: -3px;
+    content: "";
+    display: block;
+    width:45px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 50%;
+    right: -45px;
+    margin-top: -3px;
 }
 .main-list li.child:after {
-  display: none;
+    display: none;
 }
 .main-list li:last-child::after {
-  display: none;
+    display: none;
 }
 .main-list li h3 {
-  text-transform: capitalize;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 .main-list li p {
-  font-size: 12px;
+    font-size: 12px;
 }
 .main-list li p.year {
-  font-size: 10px;
-  font-style: italic;
+    font-size: 10px;
+    font-style: italic;
 }
 .main-list li p.label-title {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #3d3d3d;
-  background-color: #d6efff;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 2px 8px;
-  margin: 0 !important;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #3d3d3d;
+    background-color: #d6efff;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 2px 8px;
+    margin: 0 !important;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
 }
 .main-list li.male p.label-title {
-  background-color: #d6efff;
+    background-color: #d6efff;
 }
 .child-list li.king >.wrapp{
-  padding-bottom: 35px;
-  border-left: 6px solid #0d6fad;
-  min-height: 88px !important;
+    padding-bottom: 35px;
+    border-left: 6px solid #0d6fad;
+    min-height: 88px !important;
 }
 .child-list li.king.female >.wrapp {
-  border-color: #a50e62;
+    border-color: #a50e62;
 }
 .child-list li.king.female >.wrapp::before {
-  display: none;
+    display: none;
 }
 .child-list li.male.king >.wrapp p.label-title,
 .child-list li.male.queen >.wrapp p.label-title {
-  font-size: 10px;
-  font-weight: 600;
-  display: inline-block;
-  color: #ffffff;
-  background-color: #0d6fad;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-block;
+    color: #ffffff;
+    background-color: #0d6fad;
 }
 .child-list li.male.king >.wrapp::before {
-  display: none;
+    display: none;
 }
 .child-list li.queen >.wrapp {
-  padding-bottom: 35px;
-  border-left: 6px solid #a50e62;
-  min-height: 88px !important;
+    padding-bottom: 35px;
+    border-left: 6px solid #a50e62;
+    min-height: 88px !important;
 }
 .child-list li.queen.male >.wrapp {
-  border-color: #0d6fad;
+    border-color: #0d6fad;
 }
 .child-list li.female.queen > .wrapp p.label-title,
 .child-list li.female.king > .wrapp p.label-title {
-  font-size: 10px;
-  font-weight: 600;
-  display: inline-block;
-  color: #ffffff;
-  background-color: #a50e62;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-block;
+    color: #ffffff;
+    background-color: #a50e62;
 }
 
 .child-list li.child .wrapp .pict-wrapp {
-  width: 70px;
-  height: 70px;
-  overflow: hidden;
-  border-radius: 100%;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 100%;
 }
 .child-list li.child .wrapp.with-pict {
-  padding-left: 90px;
-  position: relative;
+    padding-left: 90px;
+    position: relative;
 }
 .child-list li.child .wrapp.with-pict .pict-wrapp {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
 }
 
 .main-wrapper .main-list li.queen::before {
-  content: "";
-  height: 73px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  bottom: -20px;
-  left: -27px;
+    content: "";
+    height: 73px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    bottom: -20px;
+    left: -27px;
 }
 
 
 /* ================================= */
 .child-list {
-  display: table;
+    display: table;
 }
 .child-list .child {
-  display: table-cell;
-  background-color: transparent;
+    display: table-cell;
+    background-color: transparent;
 }
 .child-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
 }
 .child-list li {
-  display: inline-block;
-  position: relative;
-  padding: 10px;
-  vertical-align: top;
-  border-radius: 5px;
-  text-align: left;
-  min-height: 103px;
-  margin-right: 40px;
-  min-width: 150px;
+    display: inline-block;
+    position: relative;
+    padding: 10px;
+    vertical-align: top;
+    border-radius: 5px;
+    text-align: left;
+    min-height: 103px;
+    margin-right: 40px;
+    min-width: 150px;
 }
 .child-list li > .wrapp::before {
-  content: "";
-  height: 20px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  transform: translateX(-50%);
+    content: "";
+    height: 20px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    transform: translateX(-50%);
 }
 .child-list li.first > .wrapp::before {
-  left: 2px !important;
+    left: 2px !important;
 }
 .child-list li.last,
 .child-list li.last ul li {
-  text-align: right;
+    text-align: right;
 }
 .child-list li.last > .wrapp::before {
-  left: initial !important;
-  right: 2px !important;
+    left: initial !important;
+    right: 2px !important;
 }
 .child-list li.male > .wrapp{
-  background-color: #BAD8EC;
-  text-align: left;
+    background-color: #BAD8EC;
+    text-align: left;
 }
 .child-list li.female > .wrapp{
-  background-color: #f8c6e2;
-  text-align: left;
+    background-color: #f8c6e2;
+    text-align: left;
 }
 .child-list li:last-child {
-  margin-right: 0;
+    margin-right: 0;
 }
 .child-list li.child {
-  padding: 0;
-  min-width: inherit;
+    padding: 0;
+    min-width: inherit;
 }
 .child-list li.child .wrapp {
-  padding: 10px;
-  padding-bottom: 24px;
-  border-radius: 5px;
-  position: relative;
-  height: 88px; 
-  display: inline-block;
+    padding: 10px;
+    padding-bottom: 24px;
+    border-radius: 5px;
+    position: relative;
+    height: 88px; 
+    display: inline-block;
 }
 .child-list li::after {
-  content: "";
-  display: block;
-  width:45px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: 50%;
-  right: -45px;
-  margin-top: -3px;
+    content: "";
+    display: block;
+    width:45px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 50%;
+    right: -45px;
+    margin-top: -3px;
 }
 .child-list li.child:after {
-  display: none;
+    display: none;
 }
 .child-list li:last-child::after {
-  display: none;
+    display: none;
 }
 .child-list li h3 {
-  text-transform: capitalize;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 4px;
+    text-transform: capitalize;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 .child-list li p {
-  font-size: 12px;
+    font-size: 12px;
 }
 .child-list li p.year {
-  font-size: 10px;
-  font-style: italic;
+    font-size: 10px;
+    font-style: italic;
 }
 .child-list li p.label-title {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: #3d3d3d;
-  background-color: #d6efff;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding: 2px 4px;
-  border-bottom-right-radius: 5px;
-  border-top-left-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #3d3d3d;
+    background-color: #d6efff;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 2px 4px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
 }
 .child-list > li.male > .wrapp > p.label-title {
-  background-color: #d6efff;
+    background-color: #d6efff;
 }
 .child-list > li.female > .wrapp > p.label-title {
-  background-color: #ffddf0;
+    background-color: #ffddf0;
 }
 
 .child-list li ul {
-  margin-top: 20px;
+    margin-top: 20px;
 }
 
 .child-list > li.female.wife > .wrapp::after,
 .child-list > li.male.husband > .wrapp::after {
-  content: "";
-  height: 63px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  bottom: -20px;
-  left: -20px;
+    content: "";
+    height: 63px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    bottom: -20px;
+    left: -20px;
 }
 .child-list > li.queen.female.wife > .wrapp::after {
-  height: 64px;
+    height: 64px;
 }
 .child-list > li.female.wife.last > .wrapp::after,
 .child-list > li.male.husband.last > .wrapp::after {
-  content: "";
-  height: 63px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  left: initial;
+    content: "";
+    height: 63px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    left: initial;
 }
 .child-list > li.female.wife.tunggal > .wrapp::after,
-.child-list > li.male.wife.tunggal > .wrapp::after {
-  content: "";
-  height: 63px;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  bottom: -20px;
-  left: -20px;
+.child-list > li.male.husband.tunggal > .wrapp::after {
+    content: "";
+    height: 63px;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    bottom: -20px;
+    left: -20px;
 }
 .child-list > li.female.wife.tunggal.last > .wrapp::after,
 .child-list > li.male.husband.tunggal.last > .wrapp::after {
-  right: -20px;
-  left: initial;
+    right: -20px;
+    left: initial;
 }
 
 .child-list > li.female.wife > .main-wrapper,
 .child-list > li.male.husband > .main-wrapper {
-  padding-top: 20px;
-  position: relative;
-  left: -30px
+    padding-top: 20px;
+    position: relative;
+    left: -30px
 }
 .child-list > li.female.wife.last > .main-wrapper,
 .child-list > li.male.husband.last > .main-wrapper {
-  padding-top: 20px;
-  position: relative;
-  left: initial;
-  right: -30px
+    padding-top: 20px;
+    position: relative;
+    left: initial;
+    right: -30px
 }
-.child-list > li.female.wife.poligami,
-.child-list > li.husband.wife.poligami {
-  position: relative;
+.child-list > li.female.wife.poligami {
+    position: relative;
 }
-.child-list > li.female.wife.poligami .wrapp,
-.child-list > li.male.husband.poligami .wrapp {
-  position: relative;
-  z-index: 2;
+.child-list > li.female.wife.poligami .wrapp {
+    position: relative;
+    z-index: 2;
+  max-width: 180px;
 }
-.child-list > li.female.wife.poligami::before,
-.child-list > li.male.husband.poligami::before {
-  content: "";
-  width: 100%;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: 44px;
-  left: 0;
+.child-list > li.female.wife.poligami::before {
+    content: "";
+    width: 100%;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 29px;
+    left: 0;
 }
 .child-list > li.queen.female.wife.poligami::before {
-  top: 44px;
+    top: 44px;
 }
 .child-list > li.female.wife > .main-wrapper.child-wrapp::before,
 .child-list > li.male.husband > .main-wrapper.child-wrapp::before {
-  top: 20px;
+    top: 20px;
 }
 .child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp::before,
 .child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp::before {
-  display: none;
+    display: none;
 }
 .child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp > .child-list,
 .child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list {
-  margin-top: 0;
+    margin-top: 0;
 }
 .child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp > .child-list > li.male > .wrapp::before,
-.child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list > li.male > .wrapp::before,
-.child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp > .child-list > li.famale > .wrapp::before,
-.child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list > li.female > .wrapp::before {
-  display: none;
+.child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list > li.male > .wrapp::before {
+    display: none;
 }
-.child-list > li.male.poligami > .main-wrapper,
-.child-list > li.female.poligami > .main-wrapper {
-  padding-top: 20px;
+.child-list > li.male.poligami > .main-wrapper {
+    padding-top: 20px;
 }
 
 .child-list > li.child.female.wife > .wrapp::before,
 .child-list > li.child.male.husband > .wrapp::before {
-  content: "";
-  width: 40px;
-  height: initial;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: 50%;
-  left: -40px !important;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  transform: translateY(-50%);
+    content: "";
+    width: 40px;
+    height: initial;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 50%;
+    left: -40px !important;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 .child-list > li.child.male.husband.queen > .wrapp::before {
-  left: -47px !important;
+    left: -47px !important;
 }
 .child-list > li.child.male.husband.queen > .wrapp::after {
-  left: -26px !important;
+    left: -26px !important;
 }
 .child-list > li.child.female.wife.tunggal > .wrapp::before,
 .child-list > li.child.male.husband.tunggal > .wrapp::before {
-  content: "";
-  width: 40px;
-  height: initial;
-  outline: 1px solid #bdbbbb;
-  position: absolute;
-  top: 50%;
-  left: -40px !important;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  transform: translateY(-50%);
-  display: block !important;
+    content: "";
+    width: 40px;
+    height: initial;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 50%;
+    left: -40px !important;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    transform: translateY(-50%);
+    display: block !important;
 }
 .child-list > li.male.poligami > .main-wrapper::before {
-  top: 20px;
+    top: 20px;
 }
 .child-list > li.child.female.wife.tunggal.last > .wrapp::before,
 .child-list > li.child.male.husband.tunggal.last > .wrapp::before,
 .child-list > li.child.female.wife.last > .wrapp::before,
 .child-list > li.child.male.husbad.last > .wrapp::before {
-  left: initial !important;
-  right: -40px !important;
+    left: initial !important;
+    right: -40px !important;
 }
 .child-list li.female.queen.wife > .wrapp::before,
 .child-list li.male.king.husband > .wrapp::before,
 .child-list li.female.queen.wife.tunggal > .wrapp::before,
 .child-list li.male.king.husband.tunggal > .wrapp::before {
-  left: -46px !important;
+    left: -46px !important;
 }
 .child-list li.female.queen.wife > .wrapp::after,
 .child-list li.male.king.husband > .wrapp::after {
-  left: -26px !important;
+    left: -26px !important;
 }
 .child-list li.female.queen.wife.tunggal > .wrapp::after,
 .child-list li.male.king.husband.tunggal > .wrapp::after {
-  height: 63px;
+    height: 63px;
 }
+.child-list > li.female.wife.poligami::before,
+.child-list > li.male.husband.poligami::before {
+    content: "";
+    width: 100%;
+    outline: 1px solid #bdbbbb;
+    position: absolute;
+    top: 44px;
+    left: 0;
+}
+
+.child-list > li.male.poligami > .main-wrapper,
+.child-list > li.female.poligami > .main-wrapper {
+    padding-top: 20px;
+}
+
+.child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp > .child-list > li.male.children > .wrapp::before,
+.child-list > li.female.wife.tunggal > .main-wrapper.child-wrapp > .child-list > li.female.children > .wrapp::before,
+.child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list > li.male.children > .wrapp::before,
+.child-list > li.male.husband.tunggal > .main-wrapper.child-wrapp > .child-list > li.female.children > .wrapp::before
+{
+    display: none;
+}
+
+.child-list li:last-child {
+    margin-right: 5px;
+}
+
 
 .child-list > li.female.wife > .wrapp:last-child::after,
 .child-list > li.male.husband > .wrapp:last-child::after {

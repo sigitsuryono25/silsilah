@@ -76,6 +76,11 @@ class Silsilah extends CI_Controller {
         echo json_encode($data);
     }
 
+    function getDetailMember($memberId) {
+        $data['detail'] = $this->db->query("SELECT * FROM member_detail WHERE member_id IN ('$memberId')")->row();
+        $this->load->view('new/detail', $data);
+    }
+
     function showFamilyTree() {
         $this->load->view("tree-view");
     }
@@ -152,80 +157,77 @@ class Silsilah extends CI_Controller {
         foreach ($raja as $r) {
             if ($r->sebagai == "Raja" && $r->parent_id == NULL) {
                 echo '<li class = "child male king ">';
-                echo '<div tabindex = "-1"  class = "wrapp with-pict btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-                . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                echo '<div tabindex = "-1"  class = "wrapp with-pict btn popover-edit" data-toggle="popover" data-trigger="focus" onclick="showDetail(`' . $r->member_id . '`)"  data-content = "'
                 . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
                 . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
                 . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-                . "</div></div>"
                 . '">';
-                echo "<h3>$r->nama</h3>";
+                echo '<div  data-toggle="tooltip" title="Hooray!">';
+                echo "<h3>" . substr_replace($r->nama, '...', 15) . "</h3>";
                 echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-                echo '<p class = "label-datu">' . $r->gelar . '</p>';
+                echo '<p class = "label-datu">' . substr_replace($r->gelar, '...', 15) . '</p>';
                 echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
                 echo '<p class = "label-title">' . $r->sebagai . '</p>';
                 echo '</div>';
+                echo '</div>';
             } else if ($r->sebagai == "Ratu") {
-                $ratu = $this->db->query("SELECT COUNT(*) as jumlah FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE layanan.id_layanan IN ('$idNode') AND sebagai IN ('ratu')")->row();
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
-                if ($ratu->jumlah > 1) {
-                    $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id");
+                $ratu = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE layanan.id_layanan IN ('$idNode') AND sebagai IN ('ratu') GROUP BY member_detail.member_id");
+
+                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $r->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
+                if ($ratu->num_rows() > 1) {
+                    $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $r->parent_id . "') GROUP BY member_detail.member_id");
                     if ($checkmember->num_rows() > 1) {
                         $counts = $countMember->row()->member;
                         if ($last == true) {
                             if ($counts > 1) {
-                                echo "<li class='child female queen last'>";
+                                echo "<li class='child female queen wife last x'>";
                             } else {
-                                echo "<li class='child female queen last tunggal'>";
+                                echo "<li class='child female queen wife last tunggal x dua'>";
                             }
                         } else {
                             if ($counts > 1) {
-                                echo "<li class='child female queen first poligami'>";
+                                echo "<li class='child female queen wife first poligami x tiga '>";
                             } else {
-                                echo "<li class='child female queen tunggal poligami'>";
+                                echo "<li class='child female queen wife tunggal poligami x empat'>";
                             }
                         }
                     } else {
                         $counts = $countMember->row()->member;
                         if ($last == true) {
                             if ($counts > 1) {
-                                echo "<li class='child female queen last'>";
+                                echo "<li class='child female queen wife last y satu'>";
                             } else {
-                                echo "<li class='child female queen last tunggal'>";
+                                echo "<li class='child female queen wife last tunggal y dua '>";
                             }
                         } else {
                             if ($counts > 1) {
-                                echo "<li class='child female queen first'>";
+                                echo "<li class='child female queen wife first poligami y tiga '>";
                             } else {
-                                echo "<li class='child female queen tunggal'>";
+                                echo "<li class='child female queen wife tunggal poligami y empat'>";
                             }
                         }
                     }
-                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" onclick="showDetail(`' . $r->member_id . '`)"   data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
                     . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
                     . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-                    . "</div></div>"
                     . '">';
-                    echo "<h3>$r->nama</h3>";
+                    echo "<h3>" . substr_replace($r->nama, '...', 10) . "</h3>";
+                    echo '<p class = "label-datu">' . substr_replace($r->gelar, '...', 15) . '</p>';
                     echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-                    echo '<p class = "label-datu">' . $r->gelar . '</p>';
                     echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
                     echo '<p class = "label-title">' . $r->sebagai . '</p>';
                     echo '</div>';
                 } else {
                     echo '<li class = "child female wife queen">';
-                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" onclick="showDetail(`' . $r->member_id . '`)"   data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
                     . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
                     . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-                    . "</div></div>"
                     . '">';
-                    echo "<h3>$r->nama</h3>";
+                    echo "<h3>" . substr_replace($r->nama, '...', 10) . "</h3>";
+                    echo '<p class = "label-datu">' . substr_replace($r->gelar, '...', 15) . '</p>';
                     echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-                    echo '<p class = "label-datu">' . $r->gelar . '</p>';
                     echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
                     echo '<p class = "label-title">' . $r->sebagai . '</p>';
                     echo '</div>';
@@ -247,51 +249,45 @@ class Silsilah extends CI_Controller {
                 if ($key == $count - 1) {
                     $this->anoterMember($an->member_id, true, $idNode);
                     echo "<li class='child male last'>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . "</div></div>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                     . '">';
-                    echo "<h3>$an->nama </h3>";
+                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                     if ($an->is_raja == 1) {
                         echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                     }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                     echo "</div>";
                     echo "</li>";
                 } else if ($key == 0) {
                     echo "<li class='child male first'>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . "</div></div>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                     . '">';
-                    echo "<h3>$an->nama </h3>";
+                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                     if ($an->is_raja == 1) {
                         echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                     }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($n->gelar, '...', 15) . "</p>";
                     echo "</div>";
                     $this->anoterMember($an->member_id, false, $idNode);
                     echo "</li>";
                 } else {
                     echo "<li class='child male '>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
+                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . "</div></div>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                     . '">';
-                    echo "<h3>$an->nama </h3>";
+                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                     if ($an->is_raja == 1) {
                         echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                     }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                     echo "</div>";
                     $this->anoterMember($an->member_id, false, $idNode);
                     echo "</li>";
@@ -306,41 +302,57 @@ class Silsilah extends CI_Controller {
                     $counts = $countMember->row()->member;
                     if ($last == true) {
                         if ($counts > 1) {
-                            echo "<li class='child male husband last'>";
-                        } else {
-                            echo "<li class='child male husband last tunggal'>";
+                            echo "<li class='child male husband last x'>";
+                        } else if ($counts !== 0) {
+                            echo "<li class='child male husband last tunggal x'>";
                         }
                     } else {
                         if ($counts > 1) {
-                            echo "<li class='child male husband first poligami'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child male husband first  y'>";
+                            } else {
+                                echo "<li class='child male husband first poligami y'>";
+                            }
                         } else {
-                            echo "<li class='child male husband tunggal poligami'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child male husband tunggal'>";
+                            } else {
+                                echo "<li class='child male husband tunggal poligami'>";
+                            }
                         }
                     }
                 } else {
                     $counts = $countMember->row()->member;
                     if ($last == true) {
                         if ($counts > 1) {
-                            echo "<li class='child male husband last'>";
-                        } else {
-                            echo "<li class='child male husband last tunggal'>";
+                            echo "<li class='child male husband last x'>";
+                        } else if ($counts !== 0) {
+                            echo "<li class='child male husband last tunggal x'>";
                         }
                     } else {
                         if ($counts > 1) {
-                            echo "<li class='child male husband first'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child male husband first  y'>";
+                            } else {
+                                echo "<li class='child male husband first poligami y'>";
+                            }
                         } else {
-                            echo "<li class='child male husband tunggal'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child male husband tunggal'>";
+                            } else {
+                                echo "<li class='child male husband tunggal poligami'>";
+                            }
                         }
                     }
                 }
 
-                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"   onclick="showDetail(`' . $an->member_id . '`)"  data-member = "' . $an->member_id . '" data-content = "'
                 . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                 . '">';
-                echo "<h3>$an->nama </h3>";
-                echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                 echo "</div>";
                 $this->anoterMember($an->member_id, false, $idNode);
                 echo "</li>";
@@ -351,17 +363,17 @@ class Silsilah extends CI_Controller {
                 echo "<ul class='child-list'>";
                 if ($count == 1) {
                     echo "<li class='child male'>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                     . '">';
 
-                    echo "<h3>$an->nama </h3>";
+                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                     if ($an->is_raja == 1) {
                         echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                     }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                     echo "</div>";
                     $this->anoterMember($an->member_id, false, $idNode);
                     echo "</li>";
@@ -370,17 +382,17 @@ class Silsilah extends CI_Controller {
                 } else {
                     if ($key == 0) {
                         echo "<li class='child male first'>";
-                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                         . '">';
 
-                        echo "<h3>$an->nama </h3>";
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                         if ($an->is_raja == 1) {
                             echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                         }
-                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
                         $this->anoterMember($an->member_id, false, $idNode);
                         echo "</li>";
@@ -389,34 +401,34 @@ class Silsilah extends CI_Controller {
                     } else if ($key == $count - 1) {
                         $this->anoterMember($an->member_id, true, $idNode);
                         echo "<li class='child male last'>";
-                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                         . '">';
 
-                        echo "<h3>$an->nama</h3>";
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                         if ($an->is_raja == 1) {
                             echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                         }
-                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
                         echo "</li>";
                         echo "</ul>";
                         echo "</div>";
                     } else {
                         echo "<li class='child male '>";
-                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                         . '">';
 
-                        echo "<h3>$an->nama </h3>";
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                         if ($an->is_raja == 1) {
                             echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
                         }
-                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
                         $this->anoterMember($an->member_id, false, $idNode);
                         echo "</li>";
@@ -428,399 +440,147 @@ class Silsilah extends CI_Controller {
                 $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
 
                 $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id");
+//                echo "SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id";
                 if ($checkmember->num_rows() > 1) {
                     $counts = $countMember->row()->member;
                     if ($last == true) {
                         if ($counts > 1) {
                             echo "<li class='child female wife last x'>";
-                        } else if ($counts !== 0) {
+                        } else {
                             echo "<li class='child female wife last tunggal x'>";
                         }
                     } else {
                         if ($counts > 1) {
-                            echo "<li class='child female wife first poligami y'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child female wife first  y'>";
+                            } else {
+                                echo "<li class='child female wife first poligami y'>";
+                            }
                         } else {
-//                                    echo "SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id";
-                            echo "<li class='child female wife tunggal poligami y dua'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child female wife tunggal'>";
+                            } else {
+                                echo "<li class='child female wife tunggal poligami'>";
+                            }
                         }
                     }
                 } else {
                     $counts = $countMember->row()->member;
                     if ($last == true) {
                         if ($counts > 1) {
-                            echo "<li class='child female wife last'>";
-                        } else if ($counts !== 0) {
-                            echo "<li class='child female wife last tunggal'>";
+                            echo "<li class='child female wife last x'>";
+                        } else {
+                            echo "<li class='child female wife last tunggal x'>";
                         }
                     } else {
                         if ($counts > 1) {
-                            echo "<li class='child female wife first'>";
-                        } else if ($counts !== 0) {
-                            echo "<li class='child female wife tunggal poligami'>";
+                            if ($key == $count - 1) {
+                                echo "<li class='child female wife first  y'>";
+                            } else {
+                                echo "<li class='child female wife first poligami y'>";
+                            }
+                        } else {
+                            if ($key == $count - 1) {
+                                echo "<li class='child female wife tunggal'>";
+                            } else {
+                                echo "<li class='child female wife tunggal poligami'>";
+                            }
                         }
                     }
                 }
 
-                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
+                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus" onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                 . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
                 . '">';
-                echo "<h3>$an->nama </h3>";
-                echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
+                echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                 echo "</div>";
                 $this->anoterMember($an->member_id, false, $idNode);
                 echo "</li>";
             } else if ($an->jk == "Perempuan" && $an->sebagai == "Anak") {
+                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
+                $counts = $countMember->row()->member;
                 echo '<div class = "main-wrapper child-wrapp">';
                 echo "<ul class='child-list'>";
-                if ($count == 0) {
-                    echo "<li class='child female'>";
+                if ($count == 1) {
+                    echo "<li class='child female children'>";
+                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                    . '">';
+
+                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                    if ($an->is_raja == 1) {
+                        echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
+                    }
+                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
+                    echo "</div>";
+                    $this->anoterMember($an->member_id, false, $idNode);
+                    echo "</li>";
+                    echo "</ul>";
+                    echo "</div>";
                 } else {
                     if ($key == 0) {
-                        echo "<li class='child female first'>";
+                        echo "<li class='child female first children'>";
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . '">';
+
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                        if ($an->is_raja == 1) {
+                            echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
+                        }
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
+                        echo "</div>";
+                        $this->anoterMember($an->member_id, false, $idNode);
+                        echo "</li>";
+                        echo "</ul>";
+                        echo "</div>";
                     } else if ($key == $count - 1) {
-                        echo "<li class='child female last'>";
+                        $this->anoterMember($an->member_id, true, $idNode);
+                        echo "<li class='child female last children'>";
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . '">';
+
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                        if ($an->is_raja == 1) {
+                            echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
+                        }
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
+                        echo "</div>";
+                        echo "</li>";
+                        echo "</ul>";
+                        echo "</div>";
                     } else {
-                        echo "<li class='child female '>";
+                        echo "<li class='child female children'>";
+                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
+                        . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
+                        . '">';
+
+                        echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
+                        if ($an->is_raja == 1) {
+                            echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
+                        }
+                        echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
+                        echo "</div>";
+                        $this->anoterMember($an->member_id, false, $idNode);
+                        echo "</li>";
+                        echo "</ul>";
+                        echo "</div>";
                     }
                 }
-                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-                . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                . '">';
-                echo "<h3>$an->nama </h3>";
-                echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>$an->gelar</p>";
-                echo "</div>";
-                echo "</li>";
-                $this->anoterMember($an->member_id, false, $idNode);
-                echo "</ul>";
-                echo "</div>";
             }
         }
     }
 
-//
-//    function test() {
-//        $idNode = $this->input->get('id-node');
-//        $sequence = 0;
-//        $raja = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE layanan.id_layanan IN ('$idNode') AND sebagai IN ('raja', 'ratu')")->result();
-//        foreach ($raja as $r) {
-//            if ($r->sebagai == "Raja") {
-//                echo '<li class = "child male king ">';
-//                echo '<div tabindex = "-1"  class = "wrapp with-pict btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-//                . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
-//                . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
-//                . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-//                . "</div></div>"
-//                . '">';
-//                echo '<div class="pict-wrapp">
-//                <img src = "' . base_url('assets/') . 'img/male.jpeg" alt = "Raja">
-//                </div>';
-//                echo "<h3>$r->nama</h3>";
-//                echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-//                echo '<p class = "label-datu">' . $r->gelar . '</p>';
-//                echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
-//                echo '<p class = "label-title">' . $r->sebagai . '</p>';
-//                echo '</div>';
-//            } else {
-//                $ratu = $this->db->query("SELECT COUNT(*) as jumlah FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE layanan.id_layanan IN ('$idNode') AND sebagai IN ('ratu')")->row();
-//                if ($ratu->jumlah > 1) {
-//                    if ($sequence == $ratu->jumlah) {
-//                        echo '<li class = "child female wife queen">';
-//                    } else {
-//                        echo '<li class = "child female wife queen poligami">';
-//                    }
-//                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$r->nama</h3>";
-//                    echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-//                    echo '<p class = "label-datu">' . $r->gelar . '</p>';
-//                    echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
-//                    echo '<p class = "label-title">' . $r->sebagai . '</p>';
-//                    echo '</div>';
-//                } else {
-//                    echo '<li class = "child female wife queen">';
-//                    echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class ='popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$r->nama</h3>";
-//                    echo "<span class='member-id' style='display: none'>$r->member_id</span>";
-//                    echo '<p class = "label-datu">' . $r->gelar . '</p>';
-//                    echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
-//                    echo '<p class = "label-title">' . $r->sebagai . '</p>';
-//                    echo '</div>';
-//                }
-//            }
-//            if ($this->anoterMember($r->member_id, false, $idNode)) {
-//                echo "</li>";
-//            }
-//            $sequence++;
-//        }
-//    }
-//
-//    function anoterMember($parentId = null, $last = false, $idNode = null) {
-//        error_reporting(0);
-//        $anoterMember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE  parent_id IN ('$parentId') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
-//        $count = $anoterMember->num_rows();
-//        foreach ($anoterMember->result() as $key => $an) {
-//            if ($an->jk == "Laki-Laki" && $an->generasi == 1) {
-//                if ($key == $count - 1) {
-//                    $this->anoterMember($an->member_id, true, $idNode);
-//                    echo "<li class='child male last'>";
-//                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$an->nama </h3>";
-//                    echo "</div>";
-//                    echo "</li>";
-//                } else if ($key == 0) {
-//                    echo "<li class='child male first'>";
-//                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$an->nama </h3>";
-//                    echo "</div>";
-//                    $this->anoterMember($an->member_id, false, $idNode);
-//                    echo "</li>";
-//                } else {
-//                    echo "<li class='child male '>";
-//                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$an->nama </h3>";
-//                    echo "</div>";
-//                    $this->anoterMember($an->member_id, false, $idNode);
-//                    echo "</li>";
-//                }
-//            } else if ($an->jk == "Laki-Laki" && $an->sebagai == 'Suami') {
-//                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
-//                $counts = $countMember->row()->member;
-//                if ($count == 1) {
-//                    echo "<li class='child male husband'>";
-//                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$an->nama </h3>";
-//                    echo "</div>";
-//                    $this->anoterMember($an->member_id, false, $idNode);
-//                    echo "</li>";
-//                } else {
-//                    if ($key == 0) {
-//                        echo "<li class='child male first husband'>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama </h3>";
-//                        echo "</div>";
-//                        $this->anoterMember($an->member_id, false, $idNode);
-//                        echo "</li>";
-//                    } else if ($key == $count - 1) {
-//                        $this->anoterMember($an->member_id, true, $idNode);
-//                        echo "<li class='child male last husband'>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama</h3>";
-//                        echo "</div>";
-//                        echo "</li>";
-//                    } else {
-//                        echo "<li class='child male husband'>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama </h3>";
-//                        echo "</div>";
-//                        $this->anoterMember($an->member_id, false, $idNode);
-//                        echo "</li>";
-//                    }
-//                }
-//            } else if ($an->jk == "Laki-Laki") {
-//                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
-//                $counts = $countMember->row()->member;
-//                echo '<div class = "main-wrapper child-wrapp">';
-//                echo "<ul class='child-list'>";
-//                if ($count == 1) {
-//                    echo "<li class='child male'>";
-//                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                    . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                    . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                    . "</div></div>"
-//                    . '">';
-//                    echo "<h3>$an->nama </h3>";
-//                    echo "</div>";
-//                    $this->anoterMember($an->member_id, false, $idNode);
-//                    echo "</li>";
-//                    echo "</ul>";
-//                    echo "</div>";
-//                } else {
-//                    if ($key == 0) {
-//                        echo "<li class='child male first'>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama </h3>";
-//                        echo "</div>";
-//                        $this->anoterMember($an->member_id, false, $idNode);
-//                        echo "</li>";
-//                        echo "</ul>";
-//                        echo "</div>";
-//                    } else if ($key == $count - 1) {
-//                        $this->anoterMember($an->member_id, true, $idNode);
-//                        echo "<li class='child male last'>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama</h3>";
-//                        echo "</div>";
-//                        echo "</li>";
-//                        echo "</ul>";
-//                        echo "</div>";
-//                    } else {
-//                        echo "<li class='child male '>";
-//                        echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                        . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                        . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                        . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                        . "</div></div>"
-//                        . '">';
-//                        echo "<h3>$an->nama </h3>";
-//                        echo "</div>";
-//                        $this->anoterMember($an->member_id, false, $idNode);
-//                        echo "</li>";
-//                        echo "</ul>";
-//                        echo "</div>";
-//                    }
-//                }
-//            } else if ($an->jk == "Perempuan" && $an->sebagai == "Istri") {
-//                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
-//
-//                $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id");
-//                if ($checkmember->num_rows() > 1) {
-//                    foreach ($checkmember->result() as $key => $poli) {
-//                        if (1 + $key !== $checkmember->num_rows()) {
-//                            $counts = $countMember->row()->member;
-//                            if ($last == true) {
-//                                if ($counts > 1) {
-//                                    echo "<li class='child female wife last'>";
-//                                } else {
-//                                    echo "<li class='child female wife last tunggal'>";
-//                                }
-//                            } else {
-//                                if ($counts > 1) {
-//                                    echo "<li class='child female wife first poligami'>";
-//                                } else {
-//                                    echo "<li class='child female wife tunggal poligami'>";
-//                                }
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    $counts = $countMember->row()->member;
-//                    if ($last == true) {
-//                        if ($counts > 1) {
-//                            echo "<li class='child female wife last'>";
-//                        } else {
-//                            echo "<li class='child female wife last tunggal'>";
-//                        }
-//                    } else {
-//                        if ($counts > 1) {
-//                            echo "<li class='child female wife first'>";
-//                        } else {
-//                            echo "<li class='child female wife tunggal'>";
-//                        }
-//                    }
-//                }
-//
-//                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                . "</div></div>"
-//                . '">';
-//                echo "<h3>$an->nama </h3>";
-//                echo "</div>";
-//                $this->anoterMember($an->member_id, false, $idNode);
-//                echo "</li>";
-//            } else if ($an->jk == "Perempuan" && $an->sebagai == "Anak") {
-//                echo '<div class = "main-wrapper child-wrapp">';
-//                echo "<ul class='child-list'>";
-//                if ($count == 0) {
-//                    echo "<li class='child female'>";
-//                } else {
-//                    if ($key == 0) {
-//                        echo "<li class='child female first'>";
-//                    } else if ($key == $count - 1) {
-//                        echo "<li class='child female last'>";
-//                    } else {
-//                        echo "<li class='child female '>";
-//                    }
-//                }
-//                echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-member = "' . $an->member_id . '" data-content = "'
-//                . "<div class = 'popover' role = 'tooltip'><div class = 'arrow'></div><h3 class = 'popover-header'>Tindakan</h3><div class = 'popover-body'>"
-//                . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-//                . "<a href = 'javascript:void(0)' class = 'editButton' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-//                . "<a href = 'javascript:void(0)' class = 'deleteButton' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-//                . "</div></div>"
-//                . '">';
-//                echo "<h3>$an->nama </h3>";
-//                echo "</div>";
-//                echo "</li>";
-//                $this->anoterMember($an->member_id, false, $idNode);
-//                echo "</ul>";
-//                echo "</div>";
-//            }
-//        }
-//    }
 }
