@@ -174,30 +174,17 @@ class Silsilah extends CI_Controller {
     }
 
     function getRatu($parentId = null, $idNode = null) {
+        error_reporting(0);
         $ratu = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE layanan.id_layanan IN ('$idNode') AND parent_id IN ('$parentId') AND sebagai IN ('ratu', 'istri') ORDER BY member_detail.member_id ASC");
         $count = $ratu->num_rows();
         if ($ratu->num_rows() > 1) {
             foreach ($ratu->result() as $key => $r) {
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $r->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
-                $counts = $countMember->row()->member;
                 if ($key == $count - 1) {
-                    if ($counts == 1) {
-                        echo "<li class='child female wife tunggal'>";
-                    } else {
-                        echo "<li class='child female wife '>";
-                    }
+                    echo "<li class='child female wife " . $this->checkMember($r->member_id, $idNode) . "'>";
                 } else if ($key == 0) {
-                    if ($counts == 1) {
-                        echo "<li class='child female wife first queen poligami tunggal'>";
-                    } else {
-                        echo "<li class='child female wife first queen poligami'>";
-                    }
+                    echo "<li class='child female wife first queen poligami " . $this->checkMember($r->member_id, $idNode) . "'>";
                 } else {
-                    if ($counts == 1) {
-                        echo "<li class='child female wife  poligami tunggal'>";
-                    } else {
-                        echo "<li class='child female wife  poligami'>";
-                    }
+                    echo "<li class='child female wife  poligami " . $this->checkMember($r->member_id, $idNode) . "'>$r->";
                 }
 
                 echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" onclick="showDetail(`' . $r->member_id . '`)"   data-content = "'
@@ -213,117 +200,48 @@ class Silsilah extends CI_Controller {
                     echo '<p class = "label-title">' . $r->sebagai . '</p>';
                 }
                 echo '</div>';
-                $this->anoterMember($r->member_id, $idNode);
+                $this->anoterMember($r->member_id, false, $idNode);
             }
+        } else if ($ratu->num_rows() != 0) {
+            $r = $ratu->row();
+            echo "<li class = 'child female wife queen " . $this->checkMember($r->member_id, $idNode) . "'>";
+            echo '<div tabindex = "-1"  class = "wrapp btn popover-edit" data-toggle="popover" data-trigger="focus" onclick="showDetail(`' . $r->member_id . '`)"   data-content = "'
+            . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $r->member_id . "`, `" . $r->jk . "`)'>Add</a>"
+            . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $r->member_id . ")'>Edit</a>"
+            . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $r->member_id . ")'>Delete</a>"
+            . '">';
+            echo "<h3>" . substr_replace($r->nama, '...', 10) . "</h3>";
+            echo '<p class = "label-datu">' . substr_replace($r->gelar, '...', 15) . '</p>';
+            echo "<span class='member-id' style='display: none'>$r->member_id</span>";
+            echo '<p class = "year">' . $r->berkuasa_pada . '</p>';
+            echo '<p class = "label-title">' . $r->sebagai . '</p>';
+            echo '</div>';
+            $this->anoterMember($r->member_id, false, $idNode);
         }
     }
 
-    function anoterMember($parentId = null, $last = false, $idNode = null) {
+    function anoterMember($parentId = null, $last = false, $idNode = null, $sort = "ASC", $islast = "first") {
         error_reporting(0);
-        $anoterMember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE  parent_id IN ('$parentId') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
+        $anoterMember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE  parent_id IN ('$parentId') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id  $sort");
         $count = $anoterMember->num_rows();
         foreach ($anoterMember->result() as $key => $an) {
-            if ($an->jk == "Laki-Laki" && $an->generasi == 1) {
-                if ($key == $count - 1) {
-                    $this->anoterMember($an->member_id, true, $idNode);
-                    echo "<li class='child male last'>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . '">';
-                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
-                    if ($an->is_raja == 1) {
-                        echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
-                    }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
-                    echo "</div>";
-                    echo "</li>";
-                } else if ($key == 0) {
-                    echo "<li class='child male first'>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . '">';
-                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
-                    if ($an->is_raja == 1) {
-                        echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
-                    }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($n->gelar, '...', 15) . "</p>";
-                    echo "</div>";
-                    $this->anoterMember($an->member_id, false, $idNode);
-                    echo "</li>";
+            //as a husband
+            if ($an->jk == "Laki-Laki" && $an->sebagai == 'Suami') {
+                $whosiscall = $this->whoiscall($an->member_id, $idNode);
+                $nextMember = $this->db->query("SELECT COUNT(*) as countmember FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id $sort")->row();
+                $isPoligami = $this->db->query("SELECT *, COUNT(*) as poligami FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->parent_id . "') AND sebagai NOT IN ('ratu', 'raja', 'anak', 'istri') ORDER BY member_detail.member_id $sort")->row();
+                $checkLastMember = $this->db->query("SELECT * FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('$an->parent_id') AND id_kategori IN ('$idNode') ORDER BY member_detail.member_id DESC LIMIT 1")->row();
+                if ($whosiscall == "Perempuan" && $islast == "last") {
+                    $tunggal = ($nextMember->countmember > 1) ? "" : "tunggal";
+                    $poligami = ($isPoligami->poligami > 1 && $an->member_id != $checkLastMember->member_id) ? "poligami" : "";
+                    $last = "last";
+                    echo "<li class='child male husband $last $tunggal $poligami'>";
                 } else {
-                    echo "<li class='child male '>";
-                    echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
-                    . "<a href = 'javascript:void(0)' class = 'btn btn-danger btn-sm btn-block' onclick = 'deleteData(" . $an->member_id . ")'>Hapus</a>"
-                    . '">';
-                    echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
-                    if ($an->is_raja == 1) {
-                        echo "<p class='label-title' style='background-color: #0D6FAD; color: #FFF'><b>Raja</b></p>";
-                    }
-                    echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
-                    echo "</div>";
-                    $this->anoterMember($an->member_id, false, $idNode);
-                    echo "</li>";
+                    $tunggal = ($nextMember->countmember > 1) ? "" : "tunggal";
+                    $poligami = ($isPoligami->poligami > 1) ? "poligami" : "";
+                    $last = "first";
+                    echo "<li class='child male husband $last $tunggal $poligami'>";
                 }
-
-                // AS HUSBAND
-            } else if ($an->jk == "Laki-Laki" && $an->sebagai == 'Suami') {
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
-
-                $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id");
-                if ($checkmember->num_rows() > 1) {
-                    $counts = $countMember->row()->member;
-                    if ($last == true) {
-                        if ($counts > 1) {
-                            echo "<li class='child male husband last x'>";
-                        } else if ($counts !== 0) {
-                            echo "<li class='child male husband last tunggal x'>";
-                        }
-                    } else {
-                        if ($counts > 1) {
-                            if ($key == $count - 1) {
-                                echo "<li class='child male husband first  y'>";
-                            } else {
-                                echo "<li class='child male husband first poligami y'>";
-                            }
-                        } else {
-                            if ($key == $count - 1) {
-                                echo "<li class='child male husband tunggal'>";
-                            } else {
-                                echo "<li class='child male husband tunggal poligami'>";
-                            }
-                        }
-                    }
-                } else {
-                    $counts = $countMember->row()->member;
-                    if ($last == true) {
-                        if ($counts > 1) {
-                            echo "<li class='child male husband last x'>";
-                        } else if ($counts !== 0) {
-                            echo "<li class='child male husband last tunggal x'>";
-                        }
-                    } else {
-                        if ($counts > 1) {
-                            if ($key == $count - 1) {
-                                echo "<li class='child male husband first  y'>";
-                            } else {
-                                echo "<li class='child male husband first poligami y'>";
-                            }
-                        } else {
-                            if ($key == $count - 1) {
-                                echo "<li class='child male husband tunggal'>";
-                            } else {
-                                echo "<li class='child male husband tunggal poligami'>";
-                            }
-                        }
-                    }
-                }
-
                 echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"   onclick="showDetail(`' . $an->member_id . '`)"  data-member = "' . $an->member_id . '" data-content = "'
                 . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
                 . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
@@ -334,12 +252,18 @@ class Silsilah extends CI_Controller {
                 echo "</div>";
                 $this->anoterMember($an->member_id, false, $idNode);
                 echo "</li>";
-            } else if ($an->jk == "Laki-Laki") {
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
+
+                //as a son
+            } else if ($an->jk == "Laki-Laki" && $an->sebagai == "Anak") {
+                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id  $sort");
+                $nextMember = $this->db->query("SELECT *, COUNT(*) as countmember FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id $sort")->row();
                 $counts = $countMember->row()->member;
                 echo '<div class = "main-wrapper child-wrapp">';
                 echo "<ul class='child-list'>";
                 if ($count == 1) {
+                    if($islast == "last"){
+                        $this->anoterMember($an->member_id, false, $idNode, "ASC", "last");
+                    }
                     echo "<li class='child male'>";
                     echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
                     . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
@@ -353,7 +277,9 @@ class Silsilah extends CI_Controller {
                     }
                     echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                     echo "</div>";
-                    $this->anoterMember($an->member_id, false, $idNode);
+                    if($islast !== "last"){
+                        $this->anoterMember($an->member_id, false, $idNode, "ASC", "first");
+                    }
                     echo "</li>";
                     echo "</ul>";
                     echo "</div>";
@@ -372,12 +298,12 @@ class Silsilah extends CI_Controller {
                         }
                         echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
-                        $this->anoterMember($an->member_id, false, $idNode);
+                        $this->anoterMember($an->member_id, false, $idNode, "ASC", "first");
                         echo "</li>";
                         echo "</ul>";
                         echo "</div>";
                     } else if ($key == $count - 1) {
-                        $this->anoterMember($an->member_id, true, $idNode);
+                        $this->anoterMember($an->member_id, true, $idNode, "DESC", "last");
                         echo "<li class='child male last'>";
                         echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover" data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
@@ -408,65 +334,32 @@ class Silsilah extends CI_Controller {
                         }
                         echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
-                        $this->anoterMember($an->member_id, false, $idNode);
+                        $this->anoterMember($an->member_id, false, $idNode, "DESC", "first");
                         echo "</li>";
                         echo "</ul>";
                         echo "</div>";
                     }
                 }
-            } else if ($an->jk == "Perempuan" && $an->sebagai == "Istri") {
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id");
+            }
+            //as a wife
+            else if ($an->jk == "Perempuan" && $an->sebagai == "Istri") {
 
-                $checkmember = $this->db->query("SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id");
-//                echo "SELECT * FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE member_detail.parent_id IN ('" . $an->parent_id . "') GROUP BY member_detail.member_id";
-                if ($checkmember->num_rows() > 1) {
-                    $counts = $countMember->row()->member;
-                    if ($last == true) {
-                        if ($counts > 1) {
-                            echo "<li class='child female wife last x'>";
-                        } else {
-                            echo "<li class='child female wife last tunggal x'>";
-                        }
-                    } else {
-                        if ($counts > 1) {
-                            if ($key == $count - 1) {
-                                echo "<li class='child female wife first  y'>";
-                            } else {
-                                echo "<li class='child female wife first poligami y'>";
-                            }
-                        } else {
-                            if ($key == $count - 1) {
-                                echo "<li class='child female wife tunggal'>";
-                            } else {
-                                echo "<li class='child female wife tunggal poligami'>";
-                            }
-                        }
-                    }
+                $whosiscall = $this->whoiscall($an->member_id, $idNode);
+                $nextMember = $this->db->query("SELECT COUNT(*) as countmember FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') ORDER BY member_detail.member_id $sort")->row();
+                $isPoligami = $this->db->query("SELECT *, COUNT(*) as poligami FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->parent_id . "') AND sebagai NOT IN ('ratu', 'raja', 'anak', 'suami') ORDER BY member_detail.member_id $sort")->row();
+                $checkLastMember = $this->db->query("SELECT * FROM layanan INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('$an->parent_id') AND id_kategori IN ('$idNode') ORDER BY member_detail.member_id DESC LIMIT 1")->row();
+
+                if ($whosiscall == "Laki-Laki" && $islast == "last") {
+                    $tunggal = ($nextMember->countmember > 1) ? "" : "tunggal";
+                    $poligami = ($isPoligami->poligami > 1 && $an->member_id != $checkLastMember->member_id) ? "poligami" : "";
+                    $last = "last";
+                    echo "<li class='child female wife $last $tunggal $poligami'>";
                 } else {
-                    $counts = $countMember->row()->member;
-                    if ($last == true) {
-                        if ($counts > 1) {
-                            echo "<li class='child female wife last x'>";
-                        } else {
-                            echo "<li class='child female wife last tunggal x'>";
-                        }
-                    } else {
-                        if ($counts > 1) {
-                            if ($key == $count - 1) {
-                                echo "<li class='child female wife first  y'>";
-                            } else {
-                                echo "<li class='child female wife first poligami y'>";
-                            }
-                        } else {
-                            if ($key == $count - 1) {
-                                echo "<li class='child female wife tunggal'>";
-                            } else {
-                                echo "<li class='child female wife tunggal poligami'>";
-                            }
-                        }
-                    }
+                    $tunggal = ($nextMember->countmember > 1) ? "" : "tunggal";
+                    $poligami = ($isPoligami->poligami > 1 && $an->member_id != $checkLastMember->member_id) ? "poligami" : "";
+                    $last = "first";
+                    echo "<li class='child female wife $last $tunggal $poligami'>";
                 }
-
                 echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus" onclick="showDetail(`' . $an->member_id . '`)"    data-member = "' . $an->member_id . '" data-content = "'
                 . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
                 . "<a href = 'javascript:void(0)' class = 'btn btn-warning btn-sm btn-block' onclick = 'showEditModal(" . $an->member_id . ")'>Edit</a>"
@@ -475,10 +368,12 @@ class Silsilah extends CI_Controller {
                 echo "<h3>" . substr_replace($an->nama, '...', 10) . "</h3>";
                 echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                 echo "</div>";
-                $this->anoterMember($an->member_id, false, $idNode);
+                $this->anoterMember($an->member_id, false, $idNode, "ASC", $last);
                 echo "</li>";
+
+                //as a daughter
             } else if ($an->jk == "Perempuan" && $an->sebagai == "Anak") {
-                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id");
+                $countMember = $this->db->query("SELECT COUNT(*) as member FROM `layanan` INNER JOIN member_detail ON layanan.id_layanan=member_detail.id_kategori WHERE parent_id IN ('" . $an->member_id . "') AND sebagai NOT IN ('ratu', 'raja') GROUP BY member_detail.member_id ORDER BY member_detail.member_id $sort");
                 $counts = $countMember->row()->member;
                 echo '<div class = "main-wrapper child-wrapp">';
                 echo "<ul class='child-list'>";
@@ -515,12 +410,12 @@ class Silsilah extends CI_Controller {
                         }
                         echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
-                        $this->anoterMember($an->member_id, false, $idNode);
+                        $this->anoterMember($an->member_id, false, $idNode, "ASC", "first");
                         echo "</li>";
                         echo "</ul>";
                         echo "</div>";
                     } else if ($key == $count - 1) {
-                        $this->anoterMember($an->member_id, true, $idNode);
+                        $this->anoterMember($an->member_id, true, $idNode, "DESC", "last");
                         echo "<li class='child female last children'>";
                         echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
@@ -538,6 +433,7 @@ class Silsilah extends CI_Controller {
                         echo "</ul>";
                         echo "</div>";
                     } else {
+                        $this->anoterMember($an->member_id, false, $idNode, "ASC", "last");
                         echo "<li class='child female children'>";
                         echo '<div tabindex = "-1" class = "wrapp  btn  popover-edit" data-toggle = "popover"  data-trigger="focus"  onclick="showDetail(`' . $an->member_id . '`)"   data-member = "' . $an->member_id . '" data-content = "'
                         . "<a href = 'javascript:void(0)' class = 'btn btn-primary btn-sm btn-block' onclick = 'showAddModal(`" . $an->member_id . "`, `" . $an->jk . "`)'>Add</a>"
@@ -551,7 +447,6 @@ class Silsilah extends CI_Controller {
                         }
                         echo empty($an->gelar) ? "<p class = 'label-datu'>-</p>" : "<p class = 'label-datu'>" . substr_replace($an->gelar, '...', 15) . "</p>";
                         echo "</div>";
-                        $this->anoterMember($an->member_id, false, $idNode);
                         echo "</li>";
                         echo "</ul>";
                         echo "</div>";
@@ -559,6 +454,19 @@ class Silsilah extends CI_Controller {
                 }
             }
         }
+    }
+
+    private function checkMember($member, $idNode) {
+        $member = $this->db->query("SELECT * FROM member_detail WHERE parent_id IN ('$member') AND id_kategori IN ('$idNode')")->num_rows();
+//        echo "SELECT * FROM member_detail WHERE parent_id IN ('$member') AND id_kategori IN ('$idNode')";
+        if ($member == 1) {
+            return "tunggal";
+        }
+    }
+
+    private function whoiscall($member, $idNode) {
+        $member = $this->db->query("SELECT * FROM member_detail WHERE member_id IN (SELECT parent_id FROM `member_detail` WHERE member_id IN ('$member') AND id_kategori IN ('$idNode')) AND id_kategori IN ('$idNode')")->row();
+        return $member->jk;
     }
 
 }
